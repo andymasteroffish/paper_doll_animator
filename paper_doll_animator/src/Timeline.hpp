@@ -16,6 +16,7 @@ class Timeline{
 public:
     
     void setup(int yOrder, float _maxTime);
+    void makeStarterNodes();
     
     void update(float _curTime);
     
@@ -28,6 +29,8 @@ public:
     float mouseDragged(int x, int y, int button);
     void mouseReleased();
     
+    void addNode();
+    void sortNodes();
     
     //info
     float maxTime;

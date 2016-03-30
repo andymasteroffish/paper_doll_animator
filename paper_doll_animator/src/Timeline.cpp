@@ -9,6 +9,7 @@
 #include "Timeline.hpp"
 
 
+
 void Timeline::setup(int yOrder, float _maxTime){
     
     maxTime = _maxTime;
@@ -25,6 +26,12 @@ void Timeline::setup(int yOrder, float _maxTime){
     
     nodes.clear();
     
+    
+    selectedNode = 0;
+    
+}
+
+void Timeline::makeStarterNodes(){
     AnimationNode startNode;
     startNode.setup(0, 0, 0, 0);
     nodes.push_back(startNode);
@@ -35,9 +42,6 @@ void Timeline::setup(int yOrder, float _maxTime){
     
     startNode.time = maxTime;
     nodes.push_back(startNode);
-    
-    selectedNode = 0;
-    
 }
 
 void Timeline::update(float _curTime){
@@ -104,6 +108,7 @@ void Timeline::draw(bool isSelected){
         float nodePrc = nodes[i].time/maxTime;
         float nodeX = offset.x+drawW*nodePrc;
         ofDrawCircle(nodeX, offset.y+drawH/2, nodeCircleSize);
+        ofDrawBitmapString(ofToString(i), nodeX, offset.y);
     }
     
 }
@@ -155,6 +160,7 @@ float Timeline::mouseDragged(int x, int y, int button){
         //do not do this to the first or last node
         if (selectedNode > 0 && selectedNode < nodes.size()-1){
             nodes[selectedNode].time = time;
+            sortNodes();
         }
     }
     
@@ -166,4 +172,33 @@ float Timeline::mouseDragged(int x, int y, int button){
 void Timeline::mouseReleased(){
     mouseStartedInside = false;
     nodeBeingDragged = false;
+}
+
+void Timeline::addNode(){
+    
+    AnimationNode thisNode;
+    thisNode.setup(nodes[selectedNode]);
+    thisNode.time = curTime;
+    nodes.insert(nodes.begin()+selectedNode+1, thisNode);
+
+    sortNodes();
+}
+
+//this is poorly written, but whatever. Chances are pretty low that there will ever be enough nodes to matter
+void Timeline::sortNodes(){
+
+    bool isDone = false;
+    while (!isDone){
+        isDone = true;
+        
+        for (int i=0; i<nodes.size()-1; i++){
+            if (nodes[i].time > nodes[i+1].time){
+                AnimationNode temp = nodes[i];
+                nodes[i] = nodes[i+1];
+                nodes[i+1] = temp;
+                isDone = false;
+            }
+        }
+    }
+
 }

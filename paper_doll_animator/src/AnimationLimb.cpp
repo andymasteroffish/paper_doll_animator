@@ -9,21 +9,22 @@
 #include "AnimationLimb.hpp"
 
 void AnimationLimb::setup(){
-    setup("none", 0, 0, 0, 0, 0);
+    setup("none", "none", 0, 0);
 }
-void AnimationLimb::setup(string imgFile){
-    setup(imgFile, 0, 0, 0, 0, 0);
-}
-void AnimationLimb::setup(string imgFile, float x, float y, float _angle){
-    setup(imgFile, x, y, angle, 0, 0);
-}
-void AnimationLimb::setup(string imgFile, float x, float y, float _angle, float pivotX, float pivotY){
+
+void AnimationLimb::setup(string _imgFile, string _name, float pivotX, float pivotY){
+    
+    imgFile = _imgFile;
     
     if (imgFile != "none"){
+        imgFile = _imgFile;
         img.load(imgFile);
     }
-    pos.set(x,y);
-    angle = _angle;
+    
+    name = _name;
+    
+    pos.set(0,0);
+    angle = 0;
     
     pivotPoint.set(pivotX, pivotY);
     
@@ -47,8 +48,9 @@ void AnimationLimb::setPivotFromPrc(float xPrc, float yPrc){
     pivotPoint.y = img.getHeight() * yPrcAdjust;
 }
 
-void AnimationLimb::loadImge(string fileName){
-    img.load(fileName);
+void AnimationLimb::loadImge(string _imgFile){
+    imgFile =  _imgFile;
+    img.load(imgFile);
 }
 
 void AnimationLimb::update(float time, AnimationNode prevNode, AnimationNode nextNode){

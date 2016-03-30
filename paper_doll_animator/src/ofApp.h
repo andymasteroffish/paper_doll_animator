@@ -28,7 +28,12 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     void addLimb();
+    void addLimb(string name, string imgFile);
     void setSelectedLimb(int index);
+    
+    void saveToXML();
+    void loadFromXML();
+    void clearAnimation();
     
     float deltaTime;
     float prevFrameTime;

@@ -16,23 +16,24 @@ class AnimationLimb{
 public:
     
     void setup();
-    void setup(string imgFile);
-    void setup(string imgFile, float x, float y, float _angle);
-    void setup(string imgFile, float x, float y, float _angle, float pivotX, float pivotY);
+    void setup(string _imgFile, string _name, float pivotX, float pivotY);
     
     void setPosFromPrc(float xPrc, float yPrc);
     void setAngle(float newAngle);
     void setPivotFromPrc(float xPrc, float yPrc);
-    void loadImge(string fileName);
+    void loadImge(string _imgFile);
     
     void update(float time, AnimationNode prevNode, AnimationNode nextNode);
     void draw(bool isSelected);
+    
+    string name;
     
     ofVec2f pos;
     float angle;
     
     ofVec2f pivotPoint;
     
+    string imgFile;
     ofImage img;
     
 };

@@ -32,11 +32,14 @@ void ofApp::setup(){
     panel.addSlider2D("LIMB_POS_PRC", 0.5, 0.5, 0, 1, 0, 1);
 
     
-    //finish setting upt he control panel
+    //finish setting up the control panel
     panel.setWhichPanel(0);
     panel.setupEvents();
     panel.enableEvents();
     ofAddListener(panel.guiEvent, this, &ofApp::eventsIn);
+    
+    //try to load an existing file
+    loadFromXML();
     
     //give us one limb if nothign else is there
     if (limbs.size() == 0){
@@ -111,7 +114,6 @@ void ofApp::update(){
         if (curTime > animationLength){
             curTime -= animationLength;
         }
-        cout<<"d horse do it "<<curTime<<endl;
         
     }
     
@@ -154,8 +156,12 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    if (key == 'a'){
+    if (key == 'l'){
         addLimb();
+        timelines[ timelines.size()-1].makeStarterNodes();
+    }
+    if (key == 'a'){
+        timelines[selectedLimb].addNode();
     }
     if (key == ' '){
         if (!isPlaying){
@@ -165,6 +171,9 @@ void ofApp::keyPressed(int key){
             isPlaying = false;
             curTime = timeOnPlay;
         }
+    }
+    if (key == 's'){
+        saveToXML();
     }
 }
 
@@ -233,23 +242,143 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 //--------------------------------------------------------------
 void ofApp::addLimb(){
+    addLimb("limb_"+ofToString(limbs.size()), "none");
+}
+//--------------------------------------------------------------
+void ofApp::addLimb(string name, string imgFile){
     
+    //create a limb
     AnimationLimb newLimb;
-    newLimb.setup("none", 0,0, 0, 0, 0);
+    newLimb.setup(imgFile, name, 0, 0);
+    newLimb.name = name;
     limbs.push_back(newLimb);
     
+    //and a timeline for it
     Timeline newTimeline;
     newTimeline.setup(timelines.size(), animationLength);
     timelines.push_back(newTimeline);
     
-    limbSelectorDropDown->vecDropList.push_back("limb_"+ofToString(limbs.size()));
+    //update the limb selection tool
+    limbSelectorDropDown->vecDropList.push_back(newLimb.name);
     
+    //set this new limb as selected
     setSelectedLimb(limbs.size()-1);
 }
-
 
 //--------------------------------------------------------------
 void ofApp::setSelectedLimb(int index){
     panel.setValueI("SELECTED_LIMB", index);
     selectedLimb = index;
+}
+
+
+//--------------------------------------------------------------
+void ofApp::saveToXML(){
+    ofxXmlSettings xml;
+    xml.clear();
+    
+    //make a tag for the animaiton
+    xml.addTag("ANIMATION_0");
+    xml.pushTag("ANIMATION_0");
+    
+    //make a tag for each limb
+    for (int i=0; i<limbs.size(); i++){
+        string limbTagName = "LIMB_"+ofToString(i);
+        xml.addTag(limbTagName);
+        xml.pushTag(limbTagName);
+        
+        //save the name and image file used
+        xml.setValue("name", limbs[i].name);
+        xml.setValue("file", limbs[i].imgFile);
+        
+        //go through that timeline and save all node info
+        for (int k=0; k<timelines[i].nodes.size(); k++){
+            string nodeTagName = "NODE_"+ofToString(k);
+            AnimationNode thisNode = timelines[i].nodes[k];
+            
+            xml.addTag(nodeTagName);
+            xml.pushTag(nodeTagName);
+            
+            xml.setValue("time", thisNode.time);
+            xml.setValue("pos_x", thisNode.pos.x);
+            xml.setValue("pos_y", thisNode.pos.y);
+            xml.setValue("angle", thisNode.angle);
+            
+            xml.popTag();
+        }
+        
+        xml.popTag();
+    }
+    
+    xml.popTag();
+    
+    xml.saveFile("animation_data.xml");
+    
+    cout<<"saved!"<<endl;
+    
+}
+
+//--------------------------------------------------------------
+void ofApp::loadFromXML(){
+    ofxXmlSettings xml;
+    
+    clearAnimation();
+    
+    if (xml.loadFile("animation_data.xml")){
+        cout<<"file loaded"<<endl;
+    }else{
+        cout<<"could not load file"<<endl;
+    }
+    
+    xml.pushTag("ANIMATION_0");
+    
+    //go through and make limbs
+    string limbTagName = "LIMB_"+ofToString(0);
+    while (xml.tagExists(limbTagName)){
+        xml.pushTag(limbTagName);
+        
+        string limbName = xml.getValue("name", "none");
+        string fileName = xml.getValue("file", "none");
+        cout<<"adding "<<limbName<<"  "<<fileName<<endl;
+        addLimb(limbName, fileName);
+        
+        //go through that timeline and add all of the nodes
+        string nodeTagName = "NODE_0";
+        while (xml.tagExists(nodeTagName)){
+            
+            xml.pushTag(nodeTagName);
+            
+            AnimationNode thisNode;
+            thisNode.time = xml.getValue("time", 0.0f);
+            cout<<"tag at time "<<thisNode.time<<endl;
+            thisNode.pos.x = xml.getValue("pos_x", 0.0f);
+            thisNode.pos.y = xml.getValue("pos_y", 0.0f);
+            thisNode.angle = xml.getValue("angle", 0.0f);
+            
+            timelines[timelines.size()-1].nodes.push_back(thisNode);
+            
+            //pop out of this node
+            xml.popTag();
+            
+            nodeTagName = "NODE_"+ofToString(timelines[timelines.size()-1].nodes.size());
+        }
+        
+        timelines[timelines.size()-1].sortNodes();
+        
+        //pop out of this limb
+        xml.popTag();
+        
+        //set up the next one
+        limbTagName = "LIMB_"+ofToString(limbs.size());
+    
+    }
+    
+    xml.popTag();
+}
+
+//--------------------------------------------------------------
+void ofApp::clearAnimation(){
+    limbs.clear();
+    timelines.clear();
+    
 }

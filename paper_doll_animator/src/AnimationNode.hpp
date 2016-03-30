@@ -14,7 +14,9 @@
 class AnimationNode{
 public:
     
+    void setup(AnimationNode source);
     void setup(float _time, float xPos, float yPos, float _angle);
+    
     
     float time;
     ofVec2f pos;
