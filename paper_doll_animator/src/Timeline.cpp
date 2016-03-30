@@ -20,6 +20,9 @@ void Timeline::setup(int yOrder, float _maxTime){
     offset.x = 20;
     offset.y = 10 + yOrder*(drawH+5);
     
+    nodeCircleSize = drawH*0.4;
+    framesToDragNode = 10;
+    
     nodes.clear();
     
     AnimationNode startNode;
@@ -40,6 +43,8 @@ void Timeline::setup(int yOrder, float _maxTime){
 void Timeline::update(float _curTime){
     curTime = _curTime;
     
+    dragFrameTimer++;
+    
     //selected node should be the one before the current point on the timeline
     selectedNode = 0;
     for (int i=0; i<nodes.size(); i++){
@@ -56,7 +61,7 @@ void Timeline::update(float _curTime){
     }
     
     
-    //make sure the firts and last node are the same
+    //make sure the first and last node are the same
     if (selectedNode != nodes.size()-1){
         nodes[ nodes.size()-1 ] = nodes[0];
         nodes[ nodes.size()-1 ].time =maxTime;
@@ -98,7 +103,7 @@ void Timeline::draw(bool isSelected){
         }
         float nodePrc = nodes[i].time/maxTime;
         float nodeX = offset.x+drawW*nodePrc;
-        ofDrawCircle(nodeX, offset.y+drawH/2, drawH*0.4);
+        ofDrawCircle(nodeX, offset.y+drawH/2, nodeCircleSize);
     }
     
 }
@@ -107,6 +112,19 @@ void Timeline::draw(bool isSelected){
 float Timeline::mousePressed(int x, int y, int button){
     if (x > offset.x && x < offset.x+drawW && y > offset.y && y < offset.y+drawH){
         mouseStartedInside = true;
+        
+        //did they click a node?
+        for (int i=0; i<nodes.size(); i++){
+            float nodePrc = nodes[i].time/maxTime;
+            float nodeX = offset.x+drawW*nodePrc;
+            if ( ofDistSquared(x, y, nodeX, offset.y+drawH/2) < nodeCircleSize*nodeCircleSize){
+                selectedNode = i;
+                nodeBeingDragged = true;
+                dragFrameTimer = 0;
+                return nodes[i].time;   //set the playhead to this position
+            }
+        }
+        
     }else{
         mouseStartedInside = false;
     }
@@ -115,18 +133,37 @@ float Timeline::mousePressed(int x, int y, int button){
 }
 
 float Timeline::mouseDragged(int x, int y, int button){
+    
     //if the mosue was not inside, just return -1
     if (!mouseStartedInside){
         return -1;
     }
     
-    //otherwise, figure out where we are in the timeline
+    //figure out where we are in the timeline
     float prc = (x-offset.x) / drawW;
     prc = CLAMP(prc, 0, 1);
-    return maxTime * prc;
+    float time = maxTime * prc;
+    
+    //if they just clicked a node, they may ahve just been wanting to set the playhead there, so we wait a bit before dragging or changing the time
+    if (nodeBeingDragged){
+        
+        if (dragFrameTimer < framesToDragNode){
+            return nodes[selectedNode].time;
+        }
+        
+        //if we're past that time, we can set the node's time and move on
+        //do not do this to the first or last node
+        if (selectedNode > 0 && selectedNode < nodes.size()-1){
+            nodes[selectedNode].time = time;
+        }
+    }
+    
+    //if nothing else stoppped us, return the time they dragged the playhead to
+    return time;
     
 }
 
 void Timeline::mouseReleased(){
     mouseStartedInside = false;
+    nodeBeingDragged = false;
 }

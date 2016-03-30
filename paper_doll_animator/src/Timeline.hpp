@@ -37,9 +37,15 @@ public:
     int selectedNode;
     int nextNode;
     
+    //dragging nodes
+    bool nodeBeingDragged;
+    int dragFrameTimer;
+    int framesToDragNode;
+    
     //drawing
     int drawW, drawH;
     ofVec2f offset;
+    float nodeCircleSize;
     
     //mouse stuff
     bool mouseStartedInside;
