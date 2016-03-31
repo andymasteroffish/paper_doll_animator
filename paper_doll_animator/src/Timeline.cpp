@@ -10,22 +10,25 @@
 
 
 
-void Timeline::setup(int yOrder, float _maxTime){
+void Timeline::setup(int yOrder, float _maxTime, string _limbName){
     
     maxTime = _maxTime;
     curTime = 0;
     
-    drawW = ofGetWidth() - 400;
+    limbName =  _limbName;
+    
+    drawW = ofGetWidth() - 420;
     drawH = 20;
     
-    offset.x = 20;
-    offset.y = 10 + yOrder*(drawH+5);
+    offset.x = 70;
+    offset.y = 20 + yOrder*(drawH+5);
     
     nodeCircleSize = drawH*0.4;
     framesToDragNode = 10;
     
     nodes.clear();
     
+    showTime = yOrder == 0;
     
     selectedNode = 0;
     
@@ -74,6 +77,8 @@ void Timeline::update(float _curTime){
         nodes[0].time = 0;
     }
     
+    //lockNodesToGrid(0.2);
+    
 }
 
 void Timeline::setNodeRotation(float newAngle){
@@ -95,9 +100,17 @@ void Timeline::draw(bool isSelected){
     //the line
     ofDrawLine(offset.x, offset.y+drawH/2, offset.x+drawW, offset.y+drawH/2);
     
+    //the name
+    ofDrawBitmapString(limbName, 5, offset.y+drawH-5);
+    
     //the playhead
     float playheadX = offset.x+drawW*prc;
     ofDrawLine(playheadX, offset.y, playheadX, offset.y+drawH);
+    
+    if (showTime){
+        ofSetColor(0);
+        ofDrawBitmapString(ofToString(curTime), playheadX, offset.y-3);
+    }
     
     //draw the nodes
     for (int i=0; i<nodes.size(); i++){
@@ -108,7 +121,7 @@ void Timeline::draw(bool isSelected){
         float nodePrc = nodes[i].time/maxTime;
         float nodeX = offset.x+drawW*nodePrc;
         ofDrawCircle(nodeX, offset.y+drawH/2, nodeCircleSize);
-        ofDrawBitmapString(ofToString(i), nodeX, offset.y);
+        //ofDrawBitmapString(ofToString(i), nodeX, offset.y);
     }
     
 }
@@ -149,6 +162,13 @@ float Timeline::mouseDragged(int x, int y, int button){
     prc = CLAMP(prc, 0, 1);
     float time = maxTime * prc;
     
+    //lock to grid if it is on
+    if (lockToGrid){
+        int numTime = (time+gridTimeStep*0.5) / gridTimeStep;
+        time = numTime * gridTimeStep;
+        time = MIN(time, maxTime);
+    }
+    
     //if they just clicked a node, they may ahve just been wanting to set the playhead there, so we wait a bit before dragging or changing the time
     if (nodeBeingDragged){
         
@@ -179,6 +199,11 @@ void Timeline::addNode(){
     AnimationNode thisNode;
     thisNode.setup(nodes[selectedNode]);
     thisNode.time = curTime;
+    if (lockToGrid){
+        int numTime = (curTime+gridTimeStep*0.5) / gridTimeStep;
+        thisNode.time = numTime * gridTimeStep;
+        thisNode.time = MIN(thisNode.time, maxTime);
+    }
     nodes.insert(nodes.begin()+selectedNode+1, thisNode);
 
     sortNodes();
@@ -201,4 +226,12 @@ void Timeline::sortNodes(){
         }
     }
 
+}
+
+void Timeline::setLockToGrid(float timeStep){
+    lockToGrid = true;
+    gridTimeStep = timeStep;
+}
+void Timeline::disableLockToGrid(){
+    lockToGrid = false;
 }

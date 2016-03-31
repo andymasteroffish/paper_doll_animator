@@ -15,7 +15,7 @@
 class Timeline{
 public:
     
-    void setup(int yOrder, float _maxTime);
+    void setup(int yOrder, float _maxTime, string _limbName);
     void makeStarterNodes();
     
     void update(float _curTime);
@@ -31,6 +31,8 @@ public:
     
     void addNode();
     void sortNodes();
+    void setLockToGrid(float timeStep);
+    void disableLockToGrid();
     
     //info
     float maxTime;
@@ -46,12 +48,19 @@ public:
     int framesToDragNode;
     
     //drawing
+    string limbName;
     int drawW, drawH;
     ofVec2f offset;
     float nodeCircleSize;
     
+    bool showTime;
+    
     //mouse stuff
     bool mouseStartedInside;
+    
+    //locking to grid
+    bool lockToGrid;
+    float gridTimeStep;
     
 };
 

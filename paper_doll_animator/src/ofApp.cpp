@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    animationLength = 3;
+    animationLength = 2.96;
     curTime = 0;
     
     isPlaying = false;
@@ -23,6 +23,8 @@ void ofApp::setup(){
     panel.addSlider2D("PIVOT_POINT_PRC", 0.5, 0.5, 0, 1, 0, 1);
     imgLister.listDir("parts/");
     panel.addFileLister("LIMB_IMG", &imgLister, 200, 100);
+    
+    panel.addSlider("ANIMATION_LENGTH", 3, 0.1, 10);
     
     //node settings
     panel.addPanel("node settings");
@@ -48,6 +50,8 @@ void ofApp::setup(){
     
     //defaults
     selectedLimb = 0;
+    
+    gridStep = 0.1;
     
     prevFrameTime = ofGetElapsedTimef();
 }
@@ -160,7 +164,7 @@ void ofApp::keyPressed(int key){
         addLimb(true);
         
     }
-    if (key == 'a'){
+    if (key == 'a' || key == 'A'){
         timelines[selectedLimb].addNode();
     }
     if (key == ' '){
@@ -175,11 +179,31 @@ void ofApp::keyPressed(int key){
     if (key == 's'){
         saveToXML();
     }
+    
+    //shift to lock to grid
+    if (key == 2305){
+        for (int i=0; i<timelines.size(); i++){
+            timelines[i].setLockToGrid(gridStep);
+        }
+    }
+    
+    //tab to cycle limbs
+    if (key == 9){
+        setSelectedLimb( (selectedLimb+1)%limbs.size() );
+    }
+    
+    //cout<<"pressed "<<key<<endl;
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
 
+    //shift to lock to grid
+    if (key == 2305){
+        for (int i=0; i<timelines.size(); i++){
+            timelines[i].disableLockToGrid();
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -255,7 +279,7 @@ void ofApp::addLimb(string name, string imgFile, float pivotX, float pivotY, boo
     
     //and a timeline for it
     Timeline newTimeline;
-    newTimeline.setup(timelines.size(), animationLength);
+    newTimeline.setup(timelines.size(), animationLength, name);
     if (makeStarterNodes){
         newTimeline.makeStarterNodes();
     }
@@ -346,7 +370,6 @@ void ofApp::loadFromXML(){
         string fileName = xml.getValue("file", "none");
         float pivotX = xml.getValue("pivot_x", 0);
         float pivotY = xml.getValue("pivot_y", 0);
-        cout<<"adding "<<limbName<<"  "<<fileName<<endl;
         addLimb(limbName, fileName, pivotX, pivotY, false);
         
         //go through that timeline and add all of the nodes
@@ -357,7 +380,6 @@ void ofApp::loadFromXML(){
             
             AnimationNode thisNode;
             thisNode.time = xml.getValue("time", 0.0f);
-            cout<<"tag at time "<<thisNode.time<<endl;
             thisNode.pos.x = xml.getValue("pos_x", 0.0f);
             thisNode.pos.y = xml.getValue("pos_y", 0.0f);
             thisNode.angle = xml.getValue("angle", 0.0f);

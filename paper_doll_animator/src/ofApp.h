@@ -53,5 +53,9 @@ class ofApp : public ofBaseApp{
     vector<AnimationLimb>   limbs;
     vector<Timeline>        timelines;
     
+    //keeping the nodes at exact times
+    //bool lockNodesToGrid;
+    float gridStep;
+    
     
 };
