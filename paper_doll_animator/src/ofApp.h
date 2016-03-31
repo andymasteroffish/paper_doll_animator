@@ -27,8 +27,8 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    void addLimb();
-    void addLimb(string name, string imgFile);
+    void addLimb(bool makeStarterNodes);
+    void addLimb(string name, string imgFile, float pivotX, float pivotY, bool makeStarterNodes);
     void setSelectedLimb(int index);
     
     void saveToXML();

@@ -43,7 +43,7 @@ void ofApp::setup(){
     
     //give us one limb if nothign else is there
     if (limbs.size() == 0){
-        addLimb();
+        addLimb(true);
     }
     
     //defaults
@@ -157,8 +157,8 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     if (key == 'l'){
-        addLimb();
-        timelines[ timelines.size()-1].makeStarterNodes();
+        addLimb(true);
+        
     }
     if (key == 'a'){
         timelines[selectedLimb].addNode();
@@ -241,21 +241,24 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 //--------------------------------------------------------------
-void ofApp::addLimb(){
-    addLimb("limb_"+ofToString(limbs.size()), "none");
+void ofApp::addLimb(bool makeStarterNodes){
+    addLimb("limb_"+ofToString(limbs.size()), "none", 0, 0, makeStarterNodes);
 }
 //--------------------------------------------------------------
-void ofApp::addLimb(string name, string imgFile){
+void ofApp::addLimb(string name, string imgFile, float pivotX, float pivotY, bool makeStarterNodes){
     
     //create a limb
     AnimationLimb newLimb;
-    newLimb.setup(imgFile, name, 0, 0);
+    newLimb.setup(imgFile, name, pivotX, pivotY);
     newLimb.name = name;
     limbs.push_back(newLimb);
     
     //and a timeline for it
     Timeline newTimeline;
     newTimeline.setup(timelines.size(), animationLength);
+    if (makeStarterNodes){
+        newTimeline.makeStarterNodes();
+    }
     timelines.push_back(newTimeline);
     
     //update the limb selection tool
@@ -290,6 +293,8 @@ void ofApp::saveToXML(){
         //save the name and image file used
         xml.setValue("name", limbs[i].name);
         xml.setValue("file", limbs[i].imgFile);
+        xml.setValue("pivot_x", limbs[i].pivotPoint.x);
+        xml.setValue("pivot_y", limbs[i].pivotPoint.y);
         
         //go through that timeline and save all node info
         for (int k=0; k<timelines[i].nodes.size(); k++){
@@ -339,8 +344,10 @@ void ofApp::loadFromXML(){
         
         string limbName = xml.getValue("name", "none");
         string fileName = xml.getValue("file", "none");
+        float pivotX = xml.getValue("pivot_x", 0);
+        float pivotY = xml.getValue("pivot_y", 0);
         cout<<"adding "<<limbName<<"  "<<fileName<<endl;
-        addLimb(limbName, fileName);
+        addLimb(limbName, fileName, pivotX, pivotY, false);
         
         //go through that timeline and add all of the nodes
         string nodeTagName = "NODE_0";

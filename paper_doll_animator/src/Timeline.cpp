@@ -115,7 +115,7 @@ void Timeline::draw(bool isSelected){
 
 
 float Timeline::mousePressed(int x, int y, int button){
-    if (x > offset.x && x < offset.x+drawW && y > offset.y && y < offset.y+drawH){
+    if (x > offset.x-nodeCircleSize && x < offset.x+drawW+nodeCircleSize && y > offset.y && y < offset.y+drawH){
         mouseStartedInside = true;
         
         //did they click a node?
