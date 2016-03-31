@@ -104,6 +104,14 @@ void ofApp::eventsIn(guiCallbackData & data){
         //limbs[selectedLimb].setPosFromPrc(xPrc, yPrc);
     }
     
+    if (data.getDisplayName() == "ANIMATION_LENGTH"){
+        float newTime = data.getFloat(0);
+        animationLength = newTime;
+        for (int i=0; i<timelines.size(); i++){
+            timelines[i].changeMaxTime(newTime);
+        }
+    }
+    
 }
 
 //--------------------------------------------------------------

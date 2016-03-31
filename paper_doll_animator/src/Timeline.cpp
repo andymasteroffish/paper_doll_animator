@@ -194,6 +194,13 @@ void Timeline::mouseReleased(){
     nodeBeingDragged = false;
 }
 
+void Timeline::changeMaxTime(float newMaxTime){
+    for (int i=0; i<nodes.size(); i++){
+        nodes[i].adjustTime(maxTime, newMaxTime);
+    }
+    maxTime = newMaxTime;
+}
+
 void Timeline::addNode(){
     
     AnimationNode thisNode;

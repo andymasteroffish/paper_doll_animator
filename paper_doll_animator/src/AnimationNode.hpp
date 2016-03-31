@@ -17,6 +17,8 @@ public:
     void setup(AnimationNode source);
     void setup(float _time, float xPos, float yPos, float _angle);
     
+    float adjustTime(float oldMaxTime, float newMaxTime);
+    
     
     float time;
     ofVec2f pos;
