@@ -4,6 +4,7 @@
 #include "ofxControlPanel.h"
 
 #include "AnimationLimb.hpp"
+#include "AnimationState.hpp"
 #include "Timeline.hpp"
 
 
@@ -31,9 +32,13 @@ class ofApp : public ofBaseApp{
     void addLimb(string name, string imgFile, float pivotX, float pivotY, bool makeStarterNodes);
     void setSelectedLimb(int index);
     
+    void addAnimation(bool makeStarterNodes);
+    void addAnimation(string _name, float _animationTime, bool _doesLoop, bool makeStarterNodes);
+    void setSelectedAnimation(int index);
+    
     void saveToXML();
     void loadFromXML();
-    void clearAnimation();
+    void clearAnimations();
     
     void setNotificationtext(string notification);
     
@@ -42,10 +47,10 @@ class ofApp : public ofBaseApp{
     
     ofxControlPanel panel;
     simpleFileLister imgLister;
-    guiTypeTextDropDown * limbSelectorDropDown;
+    guiTypeTextDropDown * animationSelectorDropDown;
     
     
-    float animationLength;
+    //float animationLength;
     float curTime;
     
     bool isPlaying;
@@ -53,10 +58,12 @@ class ofApp : public ofBaseApp{
     
     int selectedLimb;
     vector<AnimationLimb>   limbs;
-    vector<Timeline>        timelines;
+    //vector<Timeline>        timelines;
     
-    //keeping the nodes at exact times
-    //bool lockNodesToGrid;
+    int selectedAnimation;
+    vector<AnimationState>  animations;
+    
+    //keeping the nodes at exact times when a button is held
     float gridStep;
     
     //refrence image

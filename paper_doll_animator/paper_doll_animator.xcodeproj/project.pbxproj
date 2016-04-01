@@ -15,6 +15,7 @@
 		4A71E37D7F36F23AA123EB0B /* guiTypeSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CD68CA8FE136C3BE208703B /* guiTypeSlider.cpp */; };
 		57272D5E1CAC08BE00623C77 /* AnimationLimb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57272D5C1CAC08BE00623C77 /* AnimationLimb.cpp */; };
 		57272D621CAC0C0800623C77 /* AnimationNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57272D601CAC0C0800623C77 /* AnimationNode.cpp */; };
+		579127351CAECC7E00138F5D /* AnimationState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 579127331CAECC7E00138F5D /* AnimationState.cpp */; settings = {ASSET_TAGS = (); }; };
 		57E580131CAC225800871896 /* Timeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 57E580111CAC225800871896 /* Timeline.cpp */; settings = {ASSET_TAGS = (); }; };
 		5A4349E9754D6FA14C0F2A3A /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FC5DA1C87211D4F6377DA719 /* tinyxmlparser.cpp */; };
 		5AB5747E5EF615D728FE9C67 /* guiTypeLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CFC7A1F656C34688D0EA0D0C /* guiTypeLabel.cpp */; };
@@ -94,6 +95,8 @@
 		57272D5D1CAC08BE00623C77 /* AnimationLimb.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnimationLimb.hpp; sourceTree = "<group>"; };
 		57272D601CAC0C0800623C77 /* AnimationNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationNode.cpp; sourceTree = "<group>"; };
 		57272D611CAC0C0800623C77 /* AnimationNode.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnimationNode.hpp; sourceTree = "<group>"; };
+		579127331CAECC7E00138F5D /* AnimationState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationState.cpp; sourceTree = "<group>"; };
+		579127341CAECC7E00138F5D /* AnimationState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AnimationState.hpp; sourceTree = "<group>"; };
 		57E580111CAC225800871896 /* Timeline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timeline.cpp; sourceTree = "<group>"; };
 		57E580121CAC225800871896 /* Timeline.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Timeline.hpp; sourceTree = "<group>"; };
 		589362A07AEB006B1B8BE93F /* guiTypeLogger.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = guiTypeLogger.cpp; path = ../../../addons/ofxControlPanel/src/guiTypeLogger.cpp; sourceTree = SOURCE_ROOT; };
@@ -243,6 +246,8 @@
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				57272D5D1CAC08BE00623C77 /* AnimationLimb.hpp */,
 				57272D5C1CAC08BE00623C77 /* AnimationLimb.cpp */,
+				579127341CAECC7E00138F5D /* AnimationState.hpp */,
+				579127331CAECC7E00138F5D /* AnimationState.cpp */,
 				57E580121CAC225800871896 /* Timeline.hpp */,
 				57E580111CAC225800871896 /* Timeline.cpp */,
 				57272D611CAC0C0800623C77 /* AnimationNode.hpp */,
@@ -441,6 +446,7 @@
 				933A2227713C720CEFF80FD9 /* tinyxml.cpp in Sources */,
 				9D44DC88EF9E7991B4A09951 /* tinyxmlerror.cpp in Sources */,
 				5A4349E9754D6FA14C0F2A3A /* tinyxmlparser.cpp in Sources */,
+				579127351CAECC7E00138F5D /* AnimationState.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

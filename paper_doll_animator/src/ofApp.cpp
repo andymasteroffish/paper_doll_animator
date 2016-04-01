@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    animationLength = 2.96;
+    //animationLength = 2.96;
     curTime = 0;
     
     isPlaying = false;
@@ -24,21 +24,20 @@ void ofApp::setup(){
     panel.addLabel("Limb settings");
     
     vector<string> names;
-    limbSelectorDropDown = panel.addTextDropDown("SELECTED_LIMB", 0, names);
-    
-    //limbSelectorSlider = panel.addSliderInt("SELECTED_LIMB", 0, 0, 5);
+    animationSelectorDropDown = panel.addTextDropDown("SELECTED_ANIMATION", 0, names);
+    panel.addSlider("ANIMATION_LENGTH", 3, 0.1, 10);
     
     panel.addSlider2D("PIVOT_POINT_PRC", 0.5, 0.5, 0, 1, 0, 1);
     imgLister.listDir("parts/");
     panel.addFileLister("LIMB_IMG", &imgLister, 200, 100);
     
-    panel.addSlider("ANIMATION_LENGTH", 3, 0.1, 10);
+    
     
     //node settings
     panel.addPanel("node settings");
     panel.addLabel("Node settings");
     
-    panel.addSlider("ROTATION", 0, -360, 720);
+    panel.addSlider("LIMB_ROTATION", 0, -360, 720);
     panel.addSlider2D("LIMB_POS_PRC", 0.5, 0.5, 0, 1, 0, 1);
     
     //node settings
@@ -65,8 +64,16 @@ void ofApp::setup(){
         addLimb(true);
     }
     
+    //give us one animation if nothing else is there
+    if (animations.size() == 0){
+        addAnimation(true);
+    }
+    
+    
+    
     //defaults
     selectedLimb = 0;
+    selectedAnimation = 0;
     
     gridStep = 0.1;
     
@@ -96,8 +103,8 @@ void ofApp::eventsIn(guiCallbackData & data){
     printf("\n");
     
     //dealing with the limbs
-    if (data.getDisplayName() == "SELECTED_LIMB"){
-        setSelectedLimb( data.getInt(0) );
+    if (data.getDisplayName() == "SELECTED_ANIMATION"){
+        setSelectedAnimation( data.getInt(0) );
         cout<<"selected: "<<selectedLimb<<endl;
     }
     
@@ -110,20 +117,20 @@ void ofApp::eventsIn(guiCallbackData & data){
         limbs[selectedLimb].setPivotFromPrc(xPrc, yPrc);
     }
     
-    if (data.getDisplayName() == "ROTATION"){
-        timelines[selectedLimb].setNodeRotation(data.getFloat(0));
+    if (data.getDisplayName() == "LIMB_ROTATION"){
+        animations[selectedAnimation].timelines[selectedLimb].setNodeRotation(data.getFloat(0));
     }
     if (data.getDisplayName() == "LIMB_POS_PRC"){
         float xPrc = data.getFloat(0) * ofGetWidth() - ofGetWidth()/2;
         float yPrc = data.getFloat(1) * ofGetHeight() - ofGetHeight()/2;
-        timelines[selectedLimb].setNodePosition(xPrc, yPrc);
+        animations[selectedAnimation].timelines[selectedLimb].setNodePosition(xPrc, yPrc);
     }
     
     if (data.getDisplayName() == "ANIMATION_LENGTH"){
         float newTime = data.getFloat(0);
-        animationLength = newTime;
-        for (int i=0; i<timelines.size(); i++){
-            timelines[i].changeMaxTime(newTime);
+        animations[selectedAnimation].animationTime = newTime;
+        for (int i=0; i<limbs.size(); i++){
+            animations[selectedAnimation].timelines[i].changeMaxTime(newTime);
         }
     }
     
@@ -149,36 +156,39 @@ void ofApp::update(){
     
     if (isPlaying){
         curTime += deltaTime;
-        if (curTime > animationLength){
-            curTime -= animationLength;
+        if (curTime > animations[selectedAnimation].animationTime){
+            curTime -= animations[selectedAnimation].animationTime;
         }
         
     }
     
-    for (int i=0; i<timelines.size(); i++){
-        timelines[i].update(curTime);
+    
+    for (int i=0; i<limbs.size(); i++){
+       //cout<<"updating animaiton "<<selectedAnimation<<" timeline "<<i<<endl;
+        animations[selectedAnimation].timelines[i].update(curTime);
         
-        //have the limb set itself based on the previous node and current node
-        limbs[i].update(curTime, timelines[i].nodes[timelines[i].selectedNode], timelines[i].nodes[timelines[i].nextNode]);
+        AnimationNode curNode = animations[selectedAnimation].getCurNode(i);
+        AnimationNode nextNode = animations[selectedAnimation].getNextNode(i);
+        
+        //have the limb set itself based on the previous(current) node and the next node
+        limbs[i].update(curTime, curNode, nextNode);
     }
     
     
     notificationTextAlpha -= notificationFadeSpeed * deltaTime;
     
+    //testing
+    panel.setValueF("LIMB_ROTATION", limbs[selectedLimb].angle);
 }
 
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    
-    
-    
-    
     ofPushMatrix();
     ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
     
-    //draw the referenc epic if we have one
+    //draw the reference pic if we have one
     if (referencePic.isAllocated()){
         ofPushMatrix();
         ofTranslate(referencePicPos.x, referencePicPos.y);
@@ -191,16 +201,16 @@ void ofApp::draw(){
     }
     
     //draw the limbs
-    
     for (int i=0; i<limbs.size(); i++){
         limbs[i].draw( i==selectedLimb );
     }
+    
     ofPopMatrix();
     
     
     //draw the timelines
-    for (int i=0; i<timelines.size(); i++){
-        timelines[i].draw( i==selectedLimb );
+    for (int i=0; i<limbs.size(); i++){
+        animations[selectedAnimation].timelines[i].draw( i==selectedLimb );
     }
     
     ofSetColor(255,100,100);
@@ -220,7 +230,10 @@ void ofApp::keyPressed(int key){
         
     }
     if (key == 'a' || key == 'A'){
-        timelines[selectedLimb].addNode();
+        animations[selectedAnimation].timelines[selectedLimb].addNode();
+    }
+    if (key == 'n' || key == 'N'){
+        addAnimation(true);
     }
     if (key == ' '){
         if (!isPlaying){
@@ -237,8 +250,8 @@ void ofApp::keyPressed(int key){
     
     //shift to lock to grid
     if (key == 2305){
-        for (int i=0; i<timelines.size(); i++){
-            timelines[i].setLockToGrid(gridStep);
+        for (int i=0; i<limbs.size(); i++){
+            animations[selectedAnimation].timelines[i].setLockToGrid(gridStep);
         }
     }
     
@@ -249,7 +262,7 @@ void ofApp::keyPressed(int key){
     
     //delete to kill the selected node
     if (key == 127){
-        timelines[selectedLimb].deleteCurrentNode();
+        animations[selectedAnimation].timelines[selectedLimb].deleteCurrentNode();
     }
     
     //cout<<"pressed "<<key<<endl;
@@ -260,8 +273,8 @@ void ofApp::keyReleased(int key){
 
     //shift to lock to grid
     if (key == 2305){
-        for (int i=0; i<timelines.size(); i++){
-            timelines[i].disableLockToGrid();
+        for (int i=0; i<limbs.size(); i++){
+            animations[selectedAnimation].timelines[i].disableLockToGrid();
         }
     }
 }
@@ -273,8 +286,8 @@ void ofApp::mouseMoved(int x, int y ){
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button){
-    for (int i=0; i<timelines.size(); i++){
-        float val = timelines[i].mouseDragged(x, y, button);
+    for (int i=0; i<limbs.size(); i++){
+        float val = animations[selectedAnimation].timelines[i].mouseDragged(x, y, button);
         if (val >= 0){
             curTime = val;
         }
@@ -283,8 +296,8 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    for (int i=0; i<timelines.size(); i++){
-        float val = timelines[i].mousePressed(x, y, button);
+    for (int i=0; i<limbs.size(); i++){
+        float val = animations[selectedAnimation].timelines[i].mousePressed(x, y, button);
         if (val >= 0){
             curTime = val;
             setSelectedLimb(i); //select the limb asociated with this timeline
@@ -292,15 +305,15 @@ void ofApp::mousePressed(int x, int y, int button){
     }
     
     if (button == 2){
-        timelines[selectedLimb].update(curTime);
-        timelines[selectedLimb].addNode();
+        animations[selectedAnimation].timelines[selectedLimb].update(curTime);
+        animations[selectedAnimation].timelines[selectedLimb].addNode();
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    for (int i=0; i<timelines.size(); i++){
-        timelines[i].mouseReleased();
+    for (int i=0; i<limbs.size(); i++){
+        animations[selectedAnimation].timelines[i].mouseReleased();
     }
 }
 
@@ -345,16 +358,10 @@ void ofApp::addLimb(string name, string imgFile, float pivotX, float pivotY, boo
     newLimb.name = name;
     limbs.push_back(newLimb);
     
-    //and a timeline for it
-    Timeline newTimeline;
-    newTimeline.setup(timelines.size(), animationLength, name);
-    if (makeStarterNodes){
-        newTimeline.makeStarterNodes();
+    //and a timeline for it for every animation
+    for (int i=0; i<animations.size(); i++){
+        animations[i].addTimeline(name, makeStarterNodes);
     }
-    timelines.push_back(newTimeline);
-    
-    //update the limb selection tool
-    limbSelectorDropDown->vecDropList.push_back(newLimb.name);
     
     //set this new limb as selected
     setSelectedLimb(limbs.size()-1);
@@ -362,8 +369,43 @@ void ofApp::addLimb(string name, string imgFile, float pivotX, float pivotY, boo
 
 //--------------------------------------------------------------
 void ofApp::setSelectedLimb(int index){
-    panel.setValueI("SELECTED_LIMB", index);
     selectedLimb = index;
+}
+
+//--------------------------------------------------------------
+void ofApp::addAnimation(bool makeStarterNodes){
+    addAnimation("ANIM_"+ofToString(animations.size()), 3, true, makeStarterNodes);
+}
+//--------------------------------------------------------------
+void ofApp::addAnimation(string _name, float _animationTime, bool _doesLoop, bool makeStarterNodes){
+    AnimationState newAnimation;
+    newAnimation.setup( _name,  _animationTime,  _doesLoop);
+    
+    //create a timeline for every limb
+    for (int i=0; i<limbs.size(); i++){
+        newAnimation.addTimeline(limbs[i].name, makeStarterNodes);
+    }
+    
+    animations.push_back(newAnimation);
+    
+    //update the limb selection tool
+    animationSelectorDropDown->vecDropList.push_back(newAnimation.name);
+    setSelectedAnimation(animations.size()-1);
+}
+
+//--------------------------------------------------------------
+void ofApp::setSelectedAnimation(int index){
+    //make sure that nothing in the current animaiton is still selected
+    for (int i=0; i<limbs.size(); i++){
+        animations[selectedAnimation].timelines[i].mouseReleased();
+    }
+    
+    //actually change the animaiton
+    panel.setValueI("SELECTED_ANIMATION", index);
+    selectedAnimation = index;
+    curTime = 0;
+    
+    panel.setValueF("ANIMATION_LENGTH", animations[selectedAnimation].animationTime);
 }
 
 
@@ -372,9 +414,8 @@ void ofApp::saveToXML(){
     ofxXmlSettings xml;
     xml.clear();
     
-    //make a tag for the animaiton
-    xml.addTag("ANIMATION_0");
-    xml.pushTag("ANIMATION_0");
+    xml.addTag("LIMBS");
+    xml.pushTag("LIMBS");
     
     //make a tag for each limb
     for (int i=0; i<limbs.size(); i++){
@@ -388,25 +429,61 @@ void ofApp::saveToXML(){
         xml.setValue("pivot_x", limbs[i].pivotPoint.x);
         xml.setValue("pivot_y", limbs[i].pivotPoint.y);
         
-        //go through that timeline and save all node info
-        for (int k=0; k<timelines[i].nodes.size(); k++){
-            string nodeTagName = "NODE_"+ofToString(k);
-            AnimationNode thisNode = timelines[i].nodes[k];
-            
-            xml.addTag(nodeTagName);
-            xml.pushTag(nodeTagName);
-            
-            xml.setValue("time", thisNode.time);
-            xml.setValue("pos_x", thisNode.pos.x);
-            xml.setValue("pos_y", thisNode.pos.y);
-            xml.setValue("angle", thisNode.angle);
-            
-            xml.popTag();
-        }
-        
+        //pop out of this limb
         xml.popTag();
     }
     
+    //pop out of LIMBS
+    xml.popTag();
+    
+    
+    xml.addTag("ANIMATIONS");
+    xml.pushTag("ANIMATIONS");
+    
+    //make a tag for each animaiton
+    for (int a=0; a<animations.size(); a++){
+        AnimationState thisAnimation = animations[a];
+        string animationTagName = "ANIMATION_"+ofToString(a);
+        xml.addTag(animationTagName);
+        xml.pushTag(animationTagName);
+        
+        xml.setValue("name", thisAnimation.name);
+        xml.setValue("length", thisAnimation.animationTime);
+        xml.setValue("does_loop", thisAnimation.doesLoop);
+    
+        //make a tag for each timeline
+        for (int i=0; i<thisAnimation.timelines.size(); i++){
+            Timeline thisTimeline = thisAnimation.timelines[i];
+            string timelineTag = "TIMELINE_"+ofToString(i);
+            xml.addTag(timelineTag);
+            xml.pushTag(timelineTag);
+            
+            //go through that timeline and save all node info
+            for (int k=0; k<thisTimeline.nodes.size(); k++){
+                string nodeTagName = "NODE_"+ofToString(k);
+                AnimationNode thisNode = thisTimeline.nodes[k];
+                
+                xml.addTag(nodeTagName);
+                xml.pushTag(nodeTagName);
+                
+                xml.setValue("time", thisNode.time);
+                xml.setValue("pos_x", thisNode.pos.x);
+                xml.setValue("pos_y", thisNode.pos.y);
+                xml.setValue("angle", thisNode.angle);
+                
+                //pop out of this node
+                xml.popTag();
+            }
+            
+            //pop out of this timeline
+            xml.popTag();
+        }
+        
+        //pop out of this animation
+        xml.popTag();
+    }
+    
+    //pop out of ANIMATIONS
     xml.popTag();
     
     xml.saveFile("animation_data.xml");
@@ -420,15 +497,17 @@ void ofApp::saveToXML(){
 void ofApp::loadFromXML(){
     ofxXmlSettings xml;
     
-    clearAnimation();
+    clearAnimations();
     
     if (xml.loadFile("animation_data.xml")){
-        cout<<"file loaded"<<endl;
+        cout<<"start file load"<<endl;
     }else{
         cout<<"could not load file"<<endl;
+        setNotificationtext("Error loading file");
+        return;
     }
     
-    xml.pushTag("ANIMATION_0");
+    xml.pushTag("LIMBS");
     
     //go through and make limbs
     string limbTagName = "LIMB_"+ofToString(0);
@@ -441,43 +520,97 @@ void ofApp::loadFromXML(){
         float pivotY = xml.getValue("pivot_y", 0);
         addLimb(limbName, fileName, pivotX, pivotY, false);
         
-        //go through that timeline and add all of the nodes
-        string nodeTagName = "NODE_0";
-        while (xml.tagExists(nodeTagName)){
+        //pop out of this limb
+        xml.popTag();
+        //setup the next limb
+        limbTagName = "LIMB_"+ofToString(limbs.size());
+    }
+    
+    //pop out of LIMBS
+    xml.popTag();
+    
+    //cout<<"loaded limbs"<<endl;
+    
+    
+    xml.pushTag("ANIMATIONS");
+    string animationTagName = "ANIMATION_"+ofToString(0);
+    while (xml.tagExists(animationTagName)){
+        xml.pushTag(animationTagName);
+        
+        //cout<<"push "<<animationTagName<<endl;
+        
+        string animationName = xml.getValue("name", "none");
+        float animationTime = xml.getValue("length", 3.0f);
+        bool doesLoop = xml.getValue("does_loop", 0) == 1;
+        
+        addAnimation(animationName, animationTime, doesLoop, false);
+    
+        //go through the timelines of this animaiton
+        //unlike most tags, we know exactly how many there will be because every limb has a timeline
+        for (int t=0; t<limbs.size(); t++){
+            string timelineTagName = "TIMELINE_"+ofToString(t);
+            xml.pushTag(timelineTagName);
             
-            xml.pushTag(nodeTagName);
+            //cout<<"push "<<timelineTagName<<endl;
             
-            AnimationNode thisNode;
-            thisNode.time = xml.getValue("time", 0.0f);
-            thisNode.pos.x = xml.getValue("pos_x", 0.0f);
-            thisNode.pos.y = xml.getValue("pos_y", 0.0f);
-            thisNode.angle = xml.getValue("angle", 0.0f);
+            animations[animations.size()-1].timelines[t].limbName = limbs[t].name;
             
-            timelines[timelines.size()-1].nodes.push_back(thisNode);
+            //animations[animations.size()-1].addTimeline(limbs[animations.size()-1].name, false);
             
-            //pop out of this node
+            //go through the nodes of this timeline
+            string nodeTagName = "NODE_"+ofToString(0);
+            while (xml.tagExists(nodeTagName)){
+                xml.pushTag(nodeTagName);
+                
+                //cout<<"push "<<nodeTagName<<endl;
+                
+                AnimationNode thisNode;
+                thisNode.time = xml.getValue("time", 0.0f);
+                thisNode.pos.x = xml.getValue("pos_x", 0.0f);
+                thisNode.pos.y = xml.getValue("pos_y", 0.0f);
+                thisNode.angle = xml.getValue("angle", 0.0f);
+                
+                //cout<<"adding node to animaiton "<<animations.size()-1<<" timeline "<<t<<endl;
+                //cout<<"   node time "<<thisNode.time<<endl;
+                animations[animations.size()-1].timelines[t].nodes.push_back(thisNode);
+                
+                //pop out of this node
+                xml.popTag();
+                //get the next node
+                nodeTagName = "NODE_"+ofToString(animations[animations.size()-1].timelines[t].nodes.size());
+            }
+        
+            
+            animations[animations.size()-1].timelines[t].sortNodes();
+            
+            //pop out of this timeline
             xml.popTag();
-            
-            nodeTagName = "NODE_"+ofToString(timelines[timelines.size()-1].nodes.size());
         }
         
-        timelines[timelines.size()-1].sortNodes();
-        
-        //pop out of this limb
+        //pop out of this animation
         xml.popTag();
         
         //set up the next one
-        limbTagName = "LIMB_"+ofToString(limbs.size());
+        animationTagName = "ANIMATION_"+ofToString(animations.size());
     
     }
     
+    //pop out of ANIMATIONS
     xml.popTag();
+    
+    setSelectedAnimation(0);
+    
+    cout<<"file loaded"<<endl;
+    setNotificationtext("File loaded!");
 }
 
 //--------------------------------------------------------------
-void ofApp::clearAnimation(){
+void ofApp::clearAnimations(){
     limbs.clear();
-    timelines.clear();
+    for (int i=0; i<animations.size(); i++){
+        animations[i].timelines.clear();
+    }
+    animations.clear();
     
 }
 
