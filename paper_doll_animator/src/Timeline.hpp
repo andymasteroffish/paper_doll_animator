@@ -31,6 +31,8 @@ public:
     
     void changeMaxTime(float newMaxTime);
     
+    void deleteCurrentNode();
+    
     void addNode();
     void sortNodes();
     void setLockToGrid(float timeStep);

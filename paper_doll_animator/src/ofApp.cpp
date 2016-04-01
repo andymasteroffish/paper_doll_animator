@@ -8,6 +8,14 @@ void ofApp::setup(){
     
     isPlaying = false;
     
+    notificationTextAlpha = 0;
+    notificationtextStartAlpha = 500;
+    notificationFadeSpeed = 255;
+    
+    referencePicPos.set(0,0);
+    referencePicRotation = 0;
+    referencePicScale = 1;
+    
     //setup control panel
     int panelW = 300;
     panel.setup("settings", ofGetWidth()-panelW, 0, panelW, 700);
@@ -32,6 +40,15 @@ void ofApp::setup(){
     
     panel.addSlider("ROTATION", 0, -360, 720);
     panel.addSlider2D("LIMB_POS_PRC", 0.5, 0.5, 0, 1, 0, 1);
+    
+    //node settings
+    panel.addPanel("ref pic settings");
+    panel.addLabel("Ref pic");
+    
+    panel.addSlider("REF_ROTATION", 0, -360, 360);
+    panel.addSlider("REF_SCALE", 1, 0, 2);
+    panel.addSlider2D("REF_POS_PRC", 0.5, 0.5, 0, 1, 0, 1);
+    
 
     
     //finish setting up the control panel
@@ -95,13 +112,11 @@ void ofApp::eventsIn(guiCallbackData & data){
     
     if (data.getDisplayName() == "ROTATION"){
         timelines[selectedLimb].setNodeRotation(data.getFloat(0));
-        //limbs[selectedLimb].setAngle();
     }
     if (data.getDisplayName() == "LIMB_POS_PRC"){
         float xPrc = data.getFloat(0) * ofGetWidth() - ofGetWidth()/2;
         float yPrc = data.getFloat(1) * ofGetHeight() - ofGetHeight()/2;
         timelines[selectedLimb].setNodePosition(xPrc, yPrc);
-        //limbs[selectedLimb].setPosFromPrc(xPrc, yPrc);
     }
     
     if (data.getDisplayName() == "ANIMATION_LENGTH"){
@@ -110,6 +125,17 @@ void ofApp::eventsIn(guiCallbackData & data){
         for (int i=0; i<timelines.size(); i++){
             timelines[i].changeMaxTime(newTime);
         }
+    }
+    
+    if (data.getDisplayName() == "REF_ROTATION"){
+        referencePicRotation = data.getFloat(0);
+    }
+    if (data.getDisplayName() == "REF_SCALE"){
+        referencePicScale = data.getFloat(0);
+    }
+    if (data.getDisplayName() == "REF_POS_PRC"){
+        referencePicPos.x = data.getFloat(0) * ofGetWidth() - ofGetWidth()/2;
+        referencePicPos.y = data.getFloat(1) * ofGetHeight() - ofGetHeight()/2;
     }
     
 }
@@ -137,8 +163,7 @@ void ofApp::update(){
     }
     
     
-    //keep the node panel in line with the current node
-    //FIGURE OUT HOW TO DO THIS
+    notificationTextAlpha -= notificationFadeSpeed * deltaTime;
     
 }
 
@@ -146,24 +171,46 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    //testLimb.draw();
     
-    for (int i=0; i<timelines.size(); i++){
-        timelines[i].draw( i==selectedLimb );
-    }
+    
+    
     
     ofPushMatrix();
     ofTranslate(ofGetWidth()/2, ofGetHeight()/2);
+    
+    //draw the referenc epic if we have one
+    if (referencePic.isAllocated()){
+        ofPushMatrix();
+        ofTranslate(referencePicPos.x, referencePicPos.y);
+        ofRotate(referencePicRotation);
+        ofScale(referencePicScale, referencePicScale);
+        ofSetColor(255);
+        referencePic.draw(-referencePic.getWidth()/2, -referencePic.getHeight()/2);
+        
+        ofPopMatrix();
+    }
+    
+    //draw the limbs
+    
     for (int i=0; i<limbs.size(); i++){
         limbs[i].draw( i==selectedLimb );
     }
     ofPopMatrix();
+    
+    
+    //draw the timelines
+    for (int i=0; i<timelines.size(); i++){
+        timelines[i].draw( i==selectedLimb );
+    }
     
     ofSetColor(255,100,100);
     ofDrawLine(ofGetWidth()/2, 0, ofGetWidth()/2, ofGetHeight());
     ofDrawLine(0, ofGetHeight()/2, ofGetWidth(), ofGetHeight()/2);
     
     panel.draw();
+    
+    ofSetColor(0, notificationTextAlpha);
+    ofDrawBitmapString(notificationText, ofGetWidth()-100, ofGetHeight()-20);
 }
 
 //--------------------------------------------------------------
@@ -198,6 +245,11 @@ void ofApp::keyPressed(int key){
     //tab to cycle limbs
     if (key == 9){
         setSelectedLimb( (selectedLimb+1)%limbs.size() );
+    }
+    
+    //delete to kill the selected node
+    if (key == 127){
+        timelines[selectedLimb].deleteCurrentNode();
     }
     
     //cout<<"pressed "<<key<<endl;
@@ -238,6 +290,11 @@ void ofApp::mousePressed(int x, int y, int button){
             setSelectedLimb(i); //select the limb asociated with this timeline
         }
     }
+    
+    if (button == 2){
+        timelines[selectedLimb].update(curTime);
+        timelines[selectedLimb].addNode();
+    }
 }
 
 //--------------------------------------------------------------
@@ -268,8 +325,11 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+void ofApp::dragEvent(ofDragInfo dragInfo){
+    if (dragInfo.files.size() > 0){
+        cout<<"I got "<<dragInfo.files[0]<<endl;
+        referencePic.load(dragInfo.files[0]);
+    }
 }
 
 //--------------------------------------------------------------
@@ -352,6 +412,7 @@ void ofApp::saveToXML(){
     xml.saveFile("animation_data.xml");
     
     cout<<"saved!"<<endl;
+    setNotificationtext("Saved!");
     
 }
 
@@ -418,4 +479,10 @@ void ofApp::clearAnimation(){
     limbs.clear();
     timelines.clear();
     
+}
+
+//--------------------------------------------------------------
+void ofApp::setNotificationtext(string notification){
+    notificationText = notification;
+    notificationTextAlpha = notificationtextStartAlpha;
 }

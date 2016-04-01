@@ -77,6 +77,11 @@ void Timeline::update(float _curTime){
         nodes[0].time = 0;
     }
     
+    //if there are more than one node at the very end of the timeline, the node that isn't the last ndoe should be selected.
+    if (selectedNode == nodes.size()-1 && nodes[ nodes.size()-2].time == nodes[nodes.size()-1].time){
+        selectedNode = nodes.size()-2;
+    }
+    
     //lockNodesToGrid(0.2);
     
 }
@@ -137,7 +142,7 @@ float Timeline::mousePressed(int x, int y, int button){
             float nodeX = offset.x+drawW*nodePrc;
             if ( ofDistSquared(x, y, nodeX, offset.y+drawH/2) < nodeCircleSize*nodeCircleSize){
                 selectedNode = i;
-                nodeBeingDragged = true;
+                nodeBeingDragged = i!=0 && i!=nodes.size()-1;   //no dragging the first or last node
                 dragFrameTimer = 0;
                 return nodes[i].time;   //set the playhead to this position
             }
@@ -199,6 +204,12 @@ void Timeline::changeMaxTime(float newMaxTime){
         nodes[i].adjustTime(maxTime, newMaxTime);
     }
     maxTime = newMaxTime;
+}
+
+void Timeline::deleteCurrentNode(){
+    if (selectedNode != 0 && selectedNode != nodes.size()-1){
+        nodes.erase(nodes.begin()+selectedNode);
+    }
 }
 
 void Timeline::addNode(){

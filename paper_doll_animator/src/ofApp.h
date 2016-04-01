@@ -35,6 +35,8 @@ class ofApp : public ofBaseApp{
     void loadFromXML();
     void clearAnimation();
     
+    void setNotificationtext(string notification);
+    
     float deltaTime;
     float prevFrameTime;
     
@@ -56,6 +58,20 @@ class ofApp : public ofBaseApp{
     //keeping the nodes at exact times
     //bool lockNodesToGrid;
     float gridStep;
+    
+    //refrence image
+    ofImage referencePic;
+    ofVec2f referencePicPos;
+    float referencePicRotation;
+    float referencePicScale;
+    
+    //notifications
+    string notificationText;
+    float notificationtextStartAlpha;
+    float notificationFadeSpeed;
+    float notificationTextAlpha;
+    
+    
     
     
 };
