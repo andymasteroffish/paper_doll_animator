@@ -16,6 +16,9 @@ void ofApp::setup(){
     referencePicRotation = 0;
     referencePicScale = 1;
     
+    renamingLimb = false;
+    renamingAnimation = false;
+    
     //setup control panel
     int panelW = 300;
     panel.setup("settings", ofGetWidth()-panelW, 0, panelW, 700);
@@ -177,7 +180,14 @@ void ofApp::update(){
     
     notificationTextAlpha -= notificationFadeSpeed * deltaTime;
     
-    //testing
+    if (renamingLimb){
+        setNotificationtext("EDITING LIMB NAME");
+    }
+    if (renamingAnimation){
+        setNotificationtext("EDITING ANIMATION NAME");
+    }
+    
+    //have the panel rotaiton value match the current limb
     panel.setValueF("LIMB_ROTATION", limbs[selectedLimb].angle);
 }
 
@@ -220,14 +230,18 @@ void ofApp::draw(){
     panel.draw();
     
     ofSetColor(0, notificationTextAlpha);
-    ofDrawBitmapString(notificationText, ofGetWidth()-100, ofGetHeight()-20);
+    ofDrawBitmapString(notificationText, ofGetWidth()-200, ofGetHeight()-20);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    if (renamingLimb || renamingAnimation){
+        updateName( key);
+        return;
+    }
+    
     if (key == 'l'){
         addLimb(true);
-        
     }
     if (key == 'a' || key == 'A'){
         animations[selectedAnimation].timelines[selectedLimb].addNode();
@@ -263,6 +277,15 @@ void ofApp::keyPressed(int key){
     //delete to kill the selected node
     if (key == 127){
         animations[selectedAnimation].timelines[selectedLimb].deleteCurrentNode();
+    }
+    
+    //enter to rename a limb
+    if (key == 13){
+        renamingLimb = true;
+    }
+    //r to rename an animation
+    if (key == 'r'){
+        renamingAnimation = true;
     }
     
     //cout<<"pressed "<<key<<endl;
@@ -335,6 +358,49 @@ void ofApp::windowResized(int w, int h){
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg){
 
+}
+
+//--------------------------------------------------------------
+void ofApp::updateName(int input){
+    
+    //number, lower case, upper case and underscore all valid chars to add
+    if ( (input >= 48 && input <= 57) || (input >= 65 && input <= 90) || (input >= 97 && input <= 122) || input == 95){
+        if (renamingLimb){
+            limbs[selectedLimb].name += input;
+        }
+        if (renamingAnimation){
+            animations[selectedAnimation].name += input;
+        }
+    }
+    
+    //del removes the last char if there is one
+    if (input == 127){
+        if (renamingLimb && limbs[selectedLimb].name.length() > 0){
+            limbs[selectedLimb].name = limbs[selectedLimb].name.substr(0, limbs[selectedLimb].name.size()-1);
+        }
+        if (renamingAnimation){
+            animations[selectedAnimation].name = animations[selectedAnimation].name.substr(0, animations[selectedAnimation].name.size()-1);
+        }
+    }
+    
+    //enter ends it
+    if (input == 13){
+        renamingAnimation = false;
+        renamingLimb = false;
+        setNotificationtext("Done editing name");
+    }
+    
+    //if we're updating the limb, update all timelines of all animaitonf
+    if (renamingLimb){
+        for (int i=0; i<animations.size(); i++){
+            animations[i].timelines[selectedLimb].limbName = limbs[selectedLimb].name;
+        }
+    }
+    
+    //if we're updating the animaiton name, update the dorpown
+    if (renamingAnimation){
+        animationSelectorDropDown->vecDropList[selectedAnimation] = animations[selectedAnimation].name;
+    }
 }
 
 //--------------------------------------------------------------

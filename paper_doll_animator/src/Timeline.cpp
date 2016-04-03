@@ -39,9 +39,9 @@ void Timeline::makeStarterNodes(){
     startNode.setup(0, 0, 0, 0);
     nodes.push_back(startNode);
     
-    AnimationNode nodeTest;
-    nodeTest.setup(maxTime*0.6, ofRandom(-200,200), ofRandom(-200,200), ofRandom(360));
-    nodes.push_back(nodeTest);
+//    AnimationNode nodeTest;
+//    nodeTest.setup(maxTime*0.6, ofRandom(-200,200), ofRandom(-200,200), ofRandom(360));
+//    nodes.push_back(nodeTest);
     
     startNode.time = maxTime;
     nodes.push_back(startNode);

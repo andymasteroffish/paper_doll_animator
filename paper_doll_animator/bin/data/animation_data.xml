@@ -1,12 +1,12 @@
 <LIMBS>
     <LIMB_0>
-        <name>upper leg</name>
+        <name>up_Leg</name>
         <file>parts/leg_upper.png</file>
         <pivot_x>9.000000000</pivot_x>
         <pivot_y>14.000000000</pivot_y>
     </LIMB_0>
     <LIMB_1>
-        <name>lower leg</name>
+        <name>low_leg</name>
         <file>parts/leg_lower.png</file>
         <pivot_x>1.000000000</pivot_x>
         <pivot_y>31.000000000</pivot_y>
@@ -14,7 +14,7 @@
 </LIMBS>
 <ANIMATIONS>
     <ANIMATION_0>
-        <name>Light kick</name>
+        <name>test_kick</name>
         <length>1.699230790</length>
         <does_loop>1</does_loop>
         <TIMELINE_0>

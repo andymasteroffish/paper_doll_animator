@@ -28,6 +28,8 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
+    void updateName(int input);
+    
     void addLimb(bool makeStarterNodes);
     void addLimb(string name, string imgFile, float pivotX, float pivotY, bool makeStarterNodes);
     void setSelectedLimb(int index);
@@ -62,6 +64,9 @@ class ofApp : public ofBaseApp{
     
     int selectedAnimation;
     vector<AnimationState>  animations;
+    
+    //renaming limbs or animations
+    bool renamingLimb, renamingAnimation;
     
     //keeping the nodes at exact times when a button is held
     float gridStep;
