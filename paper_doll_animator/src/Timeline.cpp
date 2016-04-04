@@ -17,10 +17,10 @@ void Timeline::setup(int yOrder, float _maxTime, string _limbName){
     
     limbName =  _limbName;
     
-    drawW = ofGetWidth() - 420;
+    drawW = ofGetWidth() - 400;
     drawH = 20;
     
-    offset.x = 70;
+    offset.x = 90;
     offset.y = 20 + yOrder*(drawH+5);
     
     nodeCircleSize = drawH*0.4;

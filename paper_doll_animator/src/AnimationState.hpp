@@ -15,7 +15,7 @@
 class AnimationState{
 public:
     
-    void setup(string _name, float _animationTime, bool _doesLoop);
+    void setup(string _name, float _animationTime, float _transitionTime, bool _doesLoop);
     
     void addTimeline(string timelineName, bool makeStarterNodes);
     
@@ -26,6 +26,7 @@ public:
     string name;
     bool doesLoop;
     float animationTime;
+    float transitionTime;
     
     vector<Timeline> timelines;
     

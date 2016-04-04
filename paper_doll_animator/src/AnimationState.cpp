@@ -9,9 +9,10 @@
 #include "AnimationState.hpp"
 
 
-void AnimationState::setup(string _name, float _animationTime, bool _doesLoop){
+void AnimationState::setup(string _name, float _animationTime, float _transitionTime, bool _doesLoop){
     name = _name;
     animationTime = _animationTime;
+    transitionTime = _transitionTime;
     doesLoop = _doesLoop;
     
     timelines.clear();

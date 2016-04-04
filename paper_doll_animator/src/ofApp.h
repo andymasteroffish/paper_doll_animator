@@ -35,7 +35,7 @@ class ofApp : public ofBaseApp{
     void setSelectedLimb(int index);
     
     void addAnimation(bool makeStarterNodes);
-    void addAnimation(string _name, float _animationTime, bool _doesLoop, bool makeStarterNodes);
+    void addAnimation(string _name, float _animationTime, float _transitionTime, bool _doesLoop, bool makeStarterNodes);
     void setSelectedAnimation(int index);
     
     void saveToXML();
@@ -60,10 +60,11 @@ class ofApp : public ofBaseApp{
     
     int selectedLimb;
     vector<AnimationLimb>   limbs;
-    //vector<Timeline>        timelines;
     
     int selectedAnimation;
     vector<AnimationState>  animations;
+    
+    float zoom;
     
     //renaming limbs or animations
     bool renamingLimb, renamingAnimation;

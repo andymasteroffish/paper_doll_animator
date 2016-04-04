@@ -19,6 +19,8 @@ void ofApp::setup(){
     renamingLimb = false;
     renamingAnimation = false;
     
+    zoom =1;
+    
     //setup control panel
     int panelW = 300;
     panel.setup("settings", ofGetWidth()-panelW, 0, panelW, 700);
@@ -29,6 +31,7 @@ void ofApp::setup(){
     vector<string> names;
     animationSelectorDropDown = panel.addTextDropDown("SELECTED_ANIMATION", 0, names);
     panel.addSlider("ANIMATION_LENGTH", 3, 0.1, 10);
+    panel.addSlider("ANIMATION_TRANSITION_TIME", 0.2, 0, 3);
     
     panel.addSlider2D("PIVOT_POINT_PRC", 0.5, 0.5, 0, 1, 0, 1);
     imgLister.listDir("parts/");
@@ -39,6 +42,9 @@ void ofApp::setup(){
     //node settings
     panel.addPanel("node settings");
     panel.addLabel("Node settings");
+    
+    
+    panel.addSlider("ZOOM", 1, 0.1, 4);
     
     panel.addSlider("LIMB_ROTATION", 0, -360, 720);
     panel.addSlider2D("LIMB_POS_PRC", 0.5, 0.5, 0, 1, 0, 1);
@@ -105,7 +111,10 @@ void ofApp::eventsIn(guiCallbackData & data){
     
     printf("\n");
     
-    //dealing with the limbs
+    
+    if (data.getDisplayName() == "ZOOM"){
+        zoom = data.getFloat(0);
+    }
     if (data.getDisplayName() == "SELECTED_ANIMATION"){
         setSelectedAnimation( data.getInt(0) );
         cout<<"selected: "<<selectedLimb<<endl;
@@ -124,8 +133,9 @@ void ofApp::eventsIn(guiCallbackData & data){
         animations[selectedAnimation].timelines[selectedLimb].setNodeRotation(data.getFloat(0));
     }
     if (data.getDisplayName() == "LIMB_POS_PRC"){
-        float xPrc = data.getFloat(0) * ofGetWidth() - ofGetWidth()/2;
-        float yPrc = data.getFloat(1) * ofGetHeight() - ofGetHeight()/2;
+        float spacingDist = ofGetWidth()/zoom;
+        float xPrc = data.getFloat(0) * spacingDist - spacingDist/2;
+        float yPrc = data.getFloat(1) * spacingDist - spacingDist/2;
         animations[selectedAnimation].timelines[selectedLimb].setNodePosition(xPrc, yPrc);
     }
     
@@ -135,6 +145,10 @@ void ofApp::eventsIn(guiCallbackData & data){
         for (int i=0; i<limbs.size(); i++){
             animations[selectedAnimation].timelines[i].changeMaxTime(newTime);
         }
+    }
+    
+    if (data.getDisplayName() == "ANIMATION_TRANSITION_TIME"){
+        animations[selectedAnimation].transitionTime = data.getFloat(0);
     }
     
     if (data.getDisplayName() == "REF_ROTATION"){
@@ -189,6 +203,7 @@ void ofApp::update(){
     
     //have the panel rotaiton value match the current limb
     panel.setValueF("LIMB_ROTATION", limbs[selectedLimb].angle);
+    panel.setValueF("ANIMATION_TRANSITION_TIME", animations[selectedAnimation].transitionTime);
 }
 
 
@@ -211,9 +226,12 @@ void ofApp::draw(){
     }
     
     //draw the limbs
+    ofPushMatrix();
+    ofScale(zoom,zoom);
     for (int i=0; i<limbs.size(); i++){
         limbs[i].draw( i==selectedLimb );
     }
+    ofPopMatrix();
     
     ofPopMatrix();
     
@@ -440,12 +458,12 @@ void ofApp::setSelectedLimb(int index){
 
 //--------------------------------------------------------------
 void ofApp::addAnimation(bool makeStarterNodes){
-    addAnimation("ANIM_"+ofToString(animations.size()), 3, true, makeStarterNodes);
+    addAnimation("ANIM_"+ofToString(animations.size()), 3, 0.3f, true, makeStarterNodes);
 }
 //--------------------------------------------------------------
-void ofApp::addAnimation(string _name, float _animationTime, bool _doesLoop, bool makeStarterNodes){
+void ofApp::addAnimation(string _name, float _animationTime, float _transitionTime, bool _doesLoop, bool makeStarterNodes){
     AnimationState newAnimation;
-    newAnimation.setup( _name,  _animationTime,  _doesLoop);
+    newAnimation.setup( _name,  _animationTime, _transitionTime, _doesLoop);
     
     //create a timeline for every limb
     for (int i=0; i<limbs.size(); i++){
@@ -515,6 +533,7 @@ void ofApp::saveToXML(){
         
         xml.setValue("name", thisAnimation.name);
         xml.setValue("length", thisAnimation.animationTime);
+        xml.setValue("transition_time", thisAnimation.transitionTime);
         xml.setValue("does_loop", thisAnimation.doesLoop);
     
         //make a tag for each timeline
@@ -607,9 +626,10 @@ void ofApp::loadFromXML(){
         
         string animationName = xml.getValue("name", "none");
         float animationTime = xml.getValue("length", 3.0f);
+        float transitionTime = xml.getValue("transition_time", 0.3f);
         bool doesLoop = xml.getValue("does_loop", 0) == 1;
         
-        addAnimation(animationName, animationTime, doesLoop, false);
+        addAnimation(animationName, animationTime, transitionTime, doesLoop, false);
     
         //go through the timelines of this animaiton
         //unlike most tags, we know exactly how many there will be because every limb has a timeline

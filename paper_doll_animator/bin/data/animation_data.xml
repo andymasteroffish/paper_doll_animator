@@ -1,21 +1,16 @@
 <LIMBS>
     <LIMB_0>
-        <name>up_Leg</name>
-        <file>parts/leg_upper.png</file>
-        <pivot_x>9.000000000</pivot_x>
-        <pivot_y>14.000000000</pivot_y>
+        <name>limb_0</name>
+        <file>parts/arm_lower.png</file>
+        <pivot_x>0.000000000</pivot_x>
+        <pivot_y>0.000000000</pivot_y>
     </LIMB_0>
-    <LIMB_1>
-        <name>low_leg</name>
-        <file>parts/leg_lower.png</file>
-        <pivot_x>1.000000000</pivot_x>
-        <pivot_y>31.000000000</pivot_y>
-    </LIMB_1>
 </LIMBS>
 <ANIMATIONS>
     <ANIMATION_0>
-        <name>test_kick</name>
-        <length>1.699230790</length>
+        <name>ANIM_0</name>
+        <length>5.621153355</length>
+        <transition_time>1.084615469</transition_time>
         <does_loop>1</does_loop>
         <TIMELINE_0>
             <NODE_0>
@@ -25,94 +20,31 @@
                 <angle>0.000000000</angle>
             </NODE_0>
             <NODE_1>
-                <time>0.400000006</time>
-                <pos_x>-129.969238281</pos_x>
-                <pos_y>76.800018311</pos_y>
-                <angle>0.000000000</angle>
-            </NODE_1>
-            <NODE_2>
-                <time>1.019538403</time>
-                <pos_x>0.000000000</pos_x>
-                <pos_y>-2.953857422</pos_y>
-                <angle>-65.076934814</angle>
-            </NODE_2>
-            <NODE_3>
-                <time>1.699230790</time>
+                <time>5.621153355</time>
                 <pos_x>0.000000000</pos_x>
                 <pos_y>0.000000000</pos_y>
                 <angle>0.000000000</angle>
-            </NODE_3>
-        </TIMELINE_0>
-        <TIMELINE_1>
-            <NODE_0>
-                <time>0.000000000</time>
-                <pos_x>23.630798340</pos_x>
-                <pos_y>26.584625244</pos_y>
-                <angle>0.000000000</angle>
-            </NODE_0>
-            <NODE_1>
-                <time>0.400000006</time>
-                <pos_x>-106.338470459</pos_x>
-                <pos_y>109.292297363</pos_y>
-                <angle>0.000000000</angle>
             </NODE_1>
-            <NODE_2>
-                <time>1.019538403</time>
-                <pos_x>35.446166992</pos_x>
-                <pos_y>-8.861541748</pos_y>
-                <angle>-123.230773926</angle>
-            </NODE_2>
-            <NODE_3>
-                <time>1.699230790</time>
-                <pos_x>23.630798340</pos_x>
-                <pos_y>26.584625244</pos_y>
-                <angle>0.000000000</angle>
-            </NODE_3>
-        </TIMELINE_1>
+        </TIMELINE_0>
     </ANIMATION_0>
     <ANIMATION_1>
-        <name>Flexo</name>
-        <length>3.000000000</length>
+        <name>ANIM_1</name>
+        <length>1.546923161</length>
+        <transition_time>0.300000012</transition_time>
         <does_loop>1</does_loop>
         <TIMELINE_0>
             <NODE_0>
                 <time>0.000000000</time>
-                <pos_x>-378.092285156</pos_x>
-                <pos_y>-215.630767822</pos_y>
+                <pos_x>0.000000000</pos_x>
+                <pos_y>0.000000000</pos_y>
                 <angle>0.000000000</angle>
             </NODE_0>
             <NODE_1>
-                <time>1.799999952</time>
-                <pos_x>-98.461547852</pos_x>
-                <pos_y>-236.307693481</pos_y>
-                <angle>51.230773926</angle>
-            </NODE_1>
-            <NODE_2>
-                <time>3.000000000</time>
-                <pos_x>-378.092285156</pos_x>
-                <pos_y>-215.630767822</pos_y>
+                <time>1.546923161</time>
+                <pos_x>0.000000000</pos_x>
+                <pos_y>0.000000000</pos_y>
                 <angle>0.000000000</angle>
-            </NODE_2>
+            </NODE_1>
         </TIMELINE_0>
-        <TIMELINE_1>
-            <NODE_0>
-                <time>0.000000000</time>
-                <pos_x>-354.461547852</pos_x>
-                <pos_y>-189.046142578</pos_y>
-                <angle>0.000000000</angle>
-            </NODE_0>
-            <NODE_1>
-                <time>1.799999952</time>
-                <pos_x>-106.338470459</pos_x>
-                <pos_y>-197.907684326</pos_y>
-                <angle>102.627967834</angle>
-            </NODE_1>
-            <NODE_2>
-                <time>3.000000000</time>
-                <pos_x>-354.461547852</pos_x>
-                <pos_y>-189.046142578</pos_y>
-                <angle>0.000000000</angle>
-            </NODE_2>
-        </TIMELINE_1>
     </ANIMATION_1>
 </ANIMATIONS>
