@@ -19,6 +19,8 @@ void ofApp::setup(){
     renamingLimb = false;
     renamingAnimation = false;
     
+    showHelpText = false;
+    
     zoom =1;
     
     //setup control panel
@@ -32,6 +34,7 @@ void ofApp::setup(){
     animationSelectorDropDown = panel.addTextDropDown("SELECTED_ANIMATION", 0, names);
     panel.addSlider("ANIMATION_LENGTH", 3, 0.1, 10);
     panel.addSlider("ANIMATION_TRANSITION_TIME", 0.2, 0, 3);
+    panel.addToggle("ANIMATION_LOOPS", false);
     
     panel.addSlider2D("PIVOT_POINT_PRC", 0.5, 0.5, 0, 1, 0, 1);
     imgLister.listDir("parts/");
@@ -66,7 +69,7 @@ void ofApp::setup(){
     ofAddListener(panel.guiEvent, this, &ofApp::eventsIn);
     
     //try to load an existing file
-    loadFromXML();
+    loadFromXML("animation_data.xml");
     
     //give us one limb if nothign else is there
     if (limbs.size() == 0){
@@ -147,6 +150,14 @@ void ofApp::eventsIn(guiCallbackData & data){
         }
     }
     
+    if (data.getDisplayName() == "ANIMATION_LOOPS"){
+        animations[selectedAnimation].doesLoop = data.getFloat(0) == 1.00;
+        cout<<"loop:"<<animations[selectedAnimation].doesLoop<<endl;
+        for (int i=0; i<limbs.size(); i++){
+            animations[selectedAnimation].timelines[i].animationLoops = animations[selectedAnimation].doesLoop;
+        }
+    }
+    
     if (data.getDisplayName() == "ANIMATION_TRANSITION_TIME"){
         animations[selectedAnimation].transitionTime = data.getFloat(0);
     }
@@ -204,6 +215,7 @@ void ofApp::update(){
     //have the panel rotaiton value match the current limb
     panel.setValueF("LIMB_ROTATION", limbs[selectedLimb].angle);
     panel.setValueF("ANIMATION_TRANSITION_TIME", animations[selectedAnimation].transitionTime);
+    panel.setValueB("ANIMATION_LOOPS", animations[selectedAnimation].doesLoop);
 }
 
 
@@ -248,7 +260,33 @@ void ofApp::draw(){
     panel.draw();
     
     ofSetColor(0, notificationTextAlpha);
-    ofDrawBitmapString(notificationText, ofGetWidth()-200, ofGetHeight()-20);
+    ofDrawBitmapString(notificationText, ofGetWidth()-300, ofGetHeight()-20);
+    
+    if (showHelpText){
+        string helpText = "";
+        helpText += "space - play/pause\n";
+        helpText += "l/L - new limb\n";
+        helpText += "n/N - new animation\n";
+        helpText += "a/A - add node\n";
+        helpText += "tab - cycle limbs\n";
+        helpText += "s   - save\n";
+        helpText += "S   - save as\n";
+        helpText += "o/O - open\n";
+        helpText += "c/C - clear\n";
+        helpText += "del - delete node\n";
+        helpText += "r/R - rename animation\n";
+        helpText += "ent - rename limb\n";
+        helpText += "ent again to end rename\n";
+        helpText += "hold shift to lock to grid\n";
+        helpText += "h/H - toggle help text\n";
+        
+        int xPos = 12;
+        int yPos = animations[0].timelines[limbs.size()-1].offset.y + 60;
+        ofSetColor (255,0,0);
+        ofDrawBitmapString(helpText, xPos, yPos);
+        
+        
+    }
 }
 
 //--------------------------------------------------------------
@@ -258,15 +296,6 @@ void ofApp::keyPressed(int key){
         return;
     }
     
-    if (key == 'l'){
-        addLimb(true);
-    }
-    if (key == 'a' || key == 'A'){
-        animations[selectedAnimation].timelines[selectedLimb].addNode();
-    }
-    if (key == 'n' || key == 'N'){
-        addAnimation(true);
-    }
     if (key == ' '){
         if (!isPlaying){
             isPlaying = true;
@@ -276,21 +305,45 @@ void ofApp::keyPressed(int key){
             curTime = timeOnPlay;
         }
     }
-    if (key == 's'){
-        saveToXML();
-    }
     
-    //shift to lock to grid
-    if (key == 2305){
-        for (int i=0; i<limbs.size(); i++){
-            animations[selectedAnimation].timelines[i].setLockToGrid(gridStep);
-        }
+    if (key == 'l' || key == 'L'){
+        addLimb(true);
+    }
+    if (key == 'n' || key == 'N'){
+        addAnimation(true);
+    }
+    if (key == 'a' || key == 'A'){
+        animations[selectedAnimation].timelines[selectedLimb].addNode();
     }
     
     //tab to cycle limbs
     if (key == 9){
         setSelectedLimb( (selectedLimb+1)%limbs.size() );
     }
+    
+    
+    if (key == 's'){
+        saveToXML(curFileName);
+    }
+    if (key == 'S'){
+        ofFileDialogResult saveFileResult = ofSystemSaveDialog(curFileName, "Save your file");
+        if (saveFileResult.bSuccess){
+            saveToXML(saveFileResult.fileName);
+        }
+    }
+    if (key == 'o' || key == 'O'){
+        //Open the Open File Dialog
+        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select an xml");
+        cout<<"load:"<<openFileResult.fileName<<endl;
+        loadFromXML(openFileResult.fileName);
+    }
+    if (key == 'c' || key == 'C'){
+        clearAnimations();
+        addLimb(true);
+        addAnimation(true);
+    }
+    
+    
     
     //delete to kill the selected node
     if (key == 127){
@@ -302,8 +355,19 @@ void ofApp::keyPressed(int key){
         renamingLimb = true;
     }
     //r to rename an animation
-    if (key == 'r'){
+    if (key == 'r' || key == 'R'){
         renamingAnimation = true;
+    }
+    
+    //shift to lock to grid
+    if (key == 2305){
+        for (int i=0; i<limbs.size(); i++){
+            animations[selectedAnimation].timelines[i].setLockToGrid(gridStep);
+        }
+    }
+    
+    if (key == 'h'){
+        showHelpText = !showHelpText;
     }
     
     //cout<<"pressed "<<key<<endl;
@@ -494,7 +558,7 @@ void ofApp::setSelectedAnimation(int index){
 
 
 //--------------------------------------------------------------
-void ofApp::saveToXML(){
+void ofApp::saveToXML(string fileName){
     ofxXmlSettings xml;
     xml.clear();
     
@@ -571,21 +635,22 @@ void ofApp::saveToXML(){
     //pop out of ANIMATIONS
     xml.popTag();
     
-    xml.saveFile("animation_data.xml");
+    xml.saveFile(fileName);
     
-    cout<<"saved!"<<endl;
-    setNotificationtext("Saved!");
+    cout<<"saved "<<curFileName<<endl;
+    setNotificationtext("Saved "+curFileName);
     
 }
 
 //--------------------------------------------------------------
-void ofApp::loadFromXML(){
+void ofApp::loadFromXML(string fileName){
     ofxXmlSettings xml;
     
     clearAnimations();
     
-    if (xml.loadFile("animation_data.xml")){
+    if (xml.loadFile(fileName)){
         cout<<"start file load"<<endl;
+        curFileName = fileName;
     }else{
         cout<<"could not load file"<<endl;
         setNotificationtext("Error loading file");
@@ -686,8 +751,8 @@ void ofApp::loadFromXML(){
     
     setSelectedAnimation(0);
     
-    cout<<"file loaded"<<endl;
-    setNotificationtext("File loaded!");
+    cout<<"loaded "<<curFileName<<endl;
+    setNotificationtext("Loaded "+curFileName);
 }
 
 //--------------------------------------------------------------

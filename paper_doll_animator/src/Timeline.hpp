@@ -15,7 +15,7 @@
 class Timeline{
 public:
     
-    void setup(int yOrder, float _maxTime, string _limbName);
+    void setup(int yOrder, float _maxTime, string _limbName, bool _animationLoops);
     void makeStarterNodes();
     
     void update(float _curTime);
@@ -41,6 +41,7 @@ public:
     //info
     float maxTime;
     float curTime;
+    bool animationLoops;
     vector<AnimationNode> nodes;
     
     int selectedNode;

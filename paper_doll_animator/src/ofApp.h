@@ -38,8 +38,8 @@ class ofApp : public ofBaseApp{
     void addAnimation(string _name, float _animationTime, float _transitionTime, bool _doesLoop, bool makeStarterNodes);
     void setSelectedAnimation(int index);
     
-    void saveToXML();
-    void loadFromXML();
+    void saveToXML(string fileName);
+    void loadFromXML(string fileName);
     void clearAnimations();
     
     void setNotificationtext(string notification);
@@ -77,6 +77,11 @@ class ofApp : public ofBaseApp{
     ofVec2f referencePicPos;
     float referencePicRotation;
     float referencePicScale;
+    
+    //saving/loading
+    string curFileName;
+    
+    bool showHelpText;
     
     //notifications
     string notificationText;

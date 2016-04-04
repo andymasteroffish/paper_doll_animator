@@ -1,50 +1,74 @@
 <LIMBS>
     <LIMB_0>
         <name>limb_0</name>
-        <file>parts/arm_lower.png</file>
+        <file>parts/head.png</file>
         <pivot_x>0.000000000</pivot_x>
         <pivot_y>0.000000000</pivot_y>
     </LIMB_0>
 </LIMBS>
 <ANIMATIONS>
     <ANIMATION_0>
-        <name>ANIM_0</name>
-        <length>5.621153355</length>
-        <transition_time>1.084615469</transition_time>
-        <does_loop>1</does_loop>
+        <name>testo</name>
+        <length>3.000000000</length>
+        <transition_time>0.300000012</transition_time>
+        <does_loop>0</does_loop>
         <TIMELINE_0>
             <NODE_0>
                 <time>0.000000000</time>
-                <pos_x>0.000000000</pos_x>
-                <pos_y>0.000000000</pos_y>
+                <pos_x>-303.261535645</pos_x>
+                <pos_y>-110.276916504</pos_y>
                 <angle>0.000000000</angle>
             </NODE_0>
             <NODE_1>
-                <time>5.621153355</time>
-                <pos_x>0.000000000</pos_x>
-                <pos_y>0.000000000</pos_y>
+                <time>0.000000000</time>
+                <pos_x>-303.261535645</pos_x>
+                <pos_y>-110.276916504</pos_y>
                 <angle>0.000000000</angle>
             </NODE_1>
+            <NODE_2>
+                <time>1.485576987</time>
+                <pos_x>51.200012207</pos_x>
+                <pos_y>196.923095703</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_2>
+            <NODE_3>
+                <time>3.000000000</time>
+                <pos_x>51.200012207</pos_x>
+                <pos_y>196.923095703</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_3>
         </TIMELINE_0>
     </ANIMATION_0>
     <ANIMATION_1>
         <name>ANIM_1</name>
-        <length>1.546923161</length>
+        <length>3.000000000</length>
         <transition_time>0.300000012</transition_time>
         <does_loop>1</does_loop>
         <TIMELINE_0>
             <NODE_0>
                 <time>0.000000000</time>
-                <pos_x>0.000000000</pos_x>
-                <pos_y>0.000000000</pos_y>
+                <pos_x>-220.553833008</pos_x>
+                <pos_y>-153.600006104</pos_y>
                 <angle>0.000000000</angle>
             </NODE_0>
             <NODE_1>
-                <time>1.546923161</time>
-                <pos_x>0.000000000</pos_x>
-                <pos_y>0.000000000</pos_y>
+                <time>0.836538434</time>
+                <pos_x>-228.430755615</pos_x>
+                <pos_y>275.692321777</pos_y>
                 <angle>0.000000000</angle>
             </NODE_1>
+            <NODE_2>
+                <time>2.072115421</time>
+                <pos_x>98.461547852</pos_x>
+                <pos_y>-165.415374756</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_2>
+            <NODE_3>
+                <time>3.000000000</time>
+                <pos_x>-220.553833008</pos_x>
+                <pos_y>-153.600006104</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_3>
         </TIMELINE_0>
     </ANIMATION_1>
 </ANIMATIONS>

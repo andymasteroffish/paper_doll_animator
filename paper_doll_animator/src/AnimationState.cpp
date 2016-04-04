@@ -20,7 +20,7 @@ void AnimationState::setup(string _name, float _animationTime, float _transition
 
 void AnimationState::addTimeline(string timelineName, bool makeStarterNodes){
     Timeline newTimeline;
-    newTimeline.setup(timelines.size(), animationTime, timelineName);
+    newTimeline.setup(timelines.size(), animationTime, timelineName, doesLoop);
     if (makeStarterNodes){
         newTimeline.makeStarterNodes();
     }

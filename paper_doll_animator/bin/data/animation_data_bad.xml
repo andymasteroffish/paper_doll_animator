@@ -1,0 +1,56 @@
+<LIMBS>
+    <LIMB_0>
+        <name>tirg</name>
+        <file>parts/arm_lower.png</file>
+        <pivot_x>0.000000000</pivot_x>
+        <pivot_y>0.000000000</pivot_y>
+    </LIMB_0>
+</LIMBS>
+<ANIMATIONS>
+    <ANIMATION_0>
+        <name>wut</name>
+        <length>1.699230790</length>
+        <transition_time>1.084615469</transition_time>
+        <does_loop>1</does_loop>
+        <TIMELINE_0>
+            <NODE_0>
+                <time>0.000000000</time>
+                <pos_x>-259.938476562</pos_x>
+                <pos_y>-256.000000000</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_0>
+            <NODE_1>
+                <time>0.920416713</time>
+                <pos_x>181.169250488</pos_x>
+                <pos_y>15.753845215</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_1>
+            <NODE_2>
+                <time>1.699230790</time>
+                <pos_x>-259.938476562</pos_x>
+                <pos_y>-256.000000000</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_2>
+        </TIMELINE_0>
+    </ANIMATION_0>
+    <ANIMATION_1>
+        <name>ANIM_1</name>
+        <length>1.546923161</length>
+        <transition_time>0.300000012</transition_time>
+        <does_loop>1</does_loop>
+        <TIMELINE_0>
+            <NODE_0>
+                <time>0.000000000</time>
+                <pos_x>0.000000000</pos_x>
+                <pos_y>0.000000000</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_0>
+            <NODE_1>
+                <time>1.546923161</time>
+                <pos_x>0.000000000</pos_x>
+                <pos_y>0.000000000</pos_y>
+                <angle>0.000000000</angle>
+            </NODE_1>
+        </TIMELINE_0>
+    </ANIMATION_1>
+</ANIMATIONS>

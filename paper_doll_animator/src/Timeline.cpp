@@ -10,12 +10,14 @@
 
 
 
-void Timeline::setup(int yOrder, float _maxTime, string _limbName){
+void Timeline::setup(int yOrder, float _maxTime, string _limbName, bool _animationLoops){
     
     maxTime = _maxTime;
     curTime = 0;
     
     limbName =  _limbName;
+    
+    animationLoops = _animationLoops;
     
     drawW = ofGetWidth() - 400;
     drawH = 20;
@@ -68,13 +70,24 @@ void Timeline::update(float _curTime){
     }
     
     
-    //make sure the first and last node are the same
-    if (selectedNode != nodes.size()-1){
-        nodes[ nodes.size()-1 ] = nodes[0];
-        nodes[ nodes.size()-1 ].time =maxTime;
-    }else{
-        nodes[0] = nodes[nodes.size()-1];
-        nodes[0].time = 0;
+    //make sure the first and last node are the same if it loops
+    if (animationLoops){
+        if (selectedNode != nodes.size()-1){
+            nodes[ nodes.size()-1 ] = nodes[0];
+            nodes[ nodes.size()-1 ].time = maxTime;
+        }else{
+            nodes[0] = nodes[nodes.size()-1];
+            nodes[0].time = 0;
+        }
+    }
+    //and that the last and second to last nodes are the same if it doesn't
+    else{
+        if (selectedNode != nodes.size()-1){
+            nodes[ nodes.size()-1 ] = nodes[nodes.size()-2];
+            nodes[ nodes.size()-1 ].time = maxTime;
+        }else{
+            nodes[nodes.size()-2] = nodes[nodes.size()-1];
+        }
     }
     
     //if there are more than one node at the very end of the timeline, the node that isn't the last ndoe should be selected.
