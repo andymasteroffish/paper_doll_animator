@@ -10,6 +10,7 @@
 
 void AnimationLimb::setup(){
     setup("none", "none", 0, 0);
+    
 }
 
 void AnimationLimb::setup(string _imgFile, string _name, float pivotX, float pivotY){
@@ -27,6 +28,8 @@ void AnimationLimb::setup(string _imgFile, string _name, float pivotX, float piv
     angle = 0;
     
     pivotPoint.set(pivotX, pivotY);
+    
+    randomizeDebugColor();
     
 }
 
@@ -63,9 +66,12 @@ void AnimationLimb::update(float time, AnimationNode prevNode, AnimationNode nex
     
 }
 
-void AnimationLimb::draw(bool isSelected){
-    ofSetColor(255);
+void AnimationLimb::draw(bool isSelected, bool useDebugColor){
+    ofSetColor(0);
     
+    if (useDebugColor){
+        ofSetColor(debugDrawCol);
+    }
     
     ofPushMatrix();
     
@@ -101,4 +107,9 @@ void AnimationLimb::draw(bool isSelected){
     
     ofPopMatrix();
     
+}
+
+void AnimationLimb::randomizeDebugColor(){
+    debugDrawCol.setHsb(ofRandom(255), 255, 255);
+    debugDrawCol.a = 180;
 }

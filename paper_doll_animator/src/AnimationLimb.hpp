@@ -24,7 +24,9 @@ public:
     void loadImge(string _imgFile);
     
     void update(float time, AnimationNode prevNode, AnimationNode nextNode);
-    void draw(bool isSelected);
+    void draw(bool isSelected, bool useDebugColor);
+    
+    void randomizeDebugColor();
     
     string name;
     
@@ -35,6 +37,8 @@ public:
     
     string imgFile;
     ofImage img;
+    
+    ofColor debugDrawCol;
     
 };
 

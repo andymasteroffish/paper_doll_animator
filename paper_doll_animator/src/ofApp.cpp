@@ -18,6 +18,7 @@ void ofApp::setup(){
     
     renamingLimb = false;
     renamingAnimation = false;
+    showLimbDebugColor = false;
     
     showHelpText = false;
     
@@ -240,9 +241,11 @@ void ofApp::draw(){
     //draw the limbs
     ofPushMatrix();
     ofScale(zoom,zoom);
+    ofEnableAlphaBlending();
     for (int i=0; i<limbs.size(); i++){
-        limbs[i].draw( i==selectedLimb );
+        limbs[i].draw( i==selectedLimb, showLimbDebugColor );
     }
+    ofDisableAlphaBlending();
     ofPopMatrix();
     
     ofPopMatrix();
@@ -269,6 +272,8 @@ void ofApp::draw(){
         helpText += "n/N - new animation\n";
         helpText += "a/A - add node\n";
         helpText += "tab - cycle limbs\n";
+        helpText += "d   - show limb debug color\n";
+        helpText += "D   - chaneg limb debug color\n";
         helpText += "s   - save\n";
         helpText += "S   - save as\n";
         helpText += "o/O - open\n";
@@ -319,6 +324,13 @@ void ofApp::keyPressed(int key){
     //tab to cycle limbs
     if (key == 9){
         setSelectedLimb( (selectedLimb+1)%limbs.size() );
+    }
+    
+    if (key == 'd'){
+        showLimbDebugColor = !showLimbDebugColor;
+    }
+    if (key == 'D'){
+        limbs[selectedLimb].randomizeDebugColor();
     }
     
     

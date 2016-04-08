@@ -60,6 +60,7 @@ class ofApp : public ofBaseApp{
     
     int selectedLimb;
     vector<AnimationLimb>   limbs;
+    bool showLimbDebugColor;
     
     int selectedAnimation;
     vector<AnimationState>  animations;
