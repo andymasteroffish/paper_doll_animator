@@ -775,6 +775,7 @@ void ofApp::clearAnimations(){
     }
     animations.clear();
     
+    animationSelectorDropDown->vecDropList.clear();
 }
 
 //--------------------------------------------------------------
